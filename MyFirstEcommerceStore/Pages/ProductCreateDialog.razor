@@ -1,0 +1,32 @@
+﻿@page "/createproduct"
+@using MyFirstEcommerceStore.Data
+@using Microsoft.Extensions.Logging
+@inject ILogger<ProductCreateDialog> Logger
+@inject IModalService modal
+
+<EditForm Model="@product" OnSubmit="@HandleSubmit">
+    <label for="SKU">SKU:<InputText id="SKU" @bind-Value="product.ProductId" required/></label>
+    <label for="productName">Name:<InputText id="productName" @bind-Value="product.ProductName" required/></label>
+    <label for="Description">Description:<InputText id="Description" @bind-Value="product.ProductDescription" /></label>
+    <br>
+    <button type="submit" class="btn btn-secondary">Submit</button>
+</EditForm>
+
+@code {
+    private Products product = new();
+    private ProductCRUD crud = new();
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+
+    private async void HandleSubmit()
+    {
+        // Process the form
+        if(product != null)
+        {
+            await crud.CreateProducts(product);
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok(product.ProductId));
+    }
+}
