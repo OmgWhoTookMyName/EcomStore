@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.Modal" Version="7.1.0" />
     <PackageReference Include="Npgsql" Version="7.0.2" />
+    <PackageReference Include="Radzen.Blazor" Version="4.8.0" />
   </ItemGroup>
 
 </Project>
