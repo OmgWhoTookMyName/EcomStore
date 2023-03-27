@@ -3,6 +3,7 @@
 @using Microsoft.Extensions.Logging
 @inject ILogger<ProductCreateDialog> Logger
 @inject IModalService modal
+@inject DialogService DialogService
 
 <EditForm Model="@product" OnSubmit="@HandleSubmit">
     <label for="SKU">SKU:<InputText id="SKU" @bind-Value="product.ProductId" required/></label>
@@ -16,7 +17,6 @@
     private Products product = new();
     private ProductCRUD crud = new();
 
-    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
 
     private async void HandleSubmit()
@@ -26,7 +26,6 @@
         {
             await crud.CreateProducts(product);
         }
-
-        await BlazoredModal.CloseAsync(ModalResult.Ok(product.ProductId));
+        DialogService.Close();
     }
 }
