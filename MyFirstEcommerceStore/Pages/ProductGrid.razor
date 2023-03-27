@@ -1,11 +1,9 @@
 ﻿@page "/productgrid"
 @using MyFirstEcommerceStore.Data
 @inject NotificationService NotificationService
-@inject IModalService modal
 @inject DialogService DialogService
 
 
-@*<RadzenButton Click=@(args => modal.Show<ProductCreateDialog>()) Text="New Product" ButtonStyle="ButtonStyle.Primary" />*@
 <RadzenButton Text="New Product" ButtonStyle="ButtonStyle.Secondary" Click=@CreateProduct />
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@products" Grid="grid" TItem="Products" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
@@ -14,7 +12,7 @@
         <RadzenDataGridColumn TItem="Products" Property="ProductName" Title="Name" Width="160px"/>
         <RadzenDataGridColumn TItem="Products" Property="ProductDescription" Title="Description" Width="200px" />
         <RadzenDataGridColumn TItem="Products" Property="Price" Title="Price" Width="120px" />
-        <RadzenDataGridColumn Width="160px" TItem="Products" Property="ProductId" Title="Order Details">
+        <RadzenDataGridColumn Width="160px" TItem="Products" Property="ProductId" Title="Delete">
             <Template Context="products">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@products)) Icon="info" Class="m-1" Text="Delete" />
             </Template>
@@ -43,7 +41,6 @@
     }
 
     private async Task CreateProduct(){
-
         await DialogService.OpenAsync<ProductCreateDialog>("Hello");
         await Refresh();
     }

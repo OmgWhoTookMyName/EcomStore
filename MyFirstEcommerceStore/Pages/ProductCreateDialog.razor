@@ -2,7 +2,6 @@
 @using MyFirstEcommerceStore.Data
 @using Microsoft.Extensions.Logging
 @inject ILogger<ProductCreateDialog> Logger
-@inject IModalService modal
 @inject DialogService DialogService
 
 <EditForm Model="@product" OnSubmit="@HandleSubmit">
