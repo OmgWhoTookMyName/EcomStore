@@ -37,14 +37,14 @@ namespace MyFirstEcommerceStore.Data
 
             var products = new List<Products>();
 
-            string sql = "select * from products";
+            string sql = "select p.productid, productname, productdescription, b.name from products p left join brandLinks bl on p.productid=bl.productid left join brands b on b.brandid=bl.brandid";
 
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
                 while (rea.Read())
                 {
-                    products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[3].ToString(), ProductId = rea[4].ToString() });
+                    products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString() });
                 }
                 
             }
@@ -132,7 +132,7 @@ namespace MyFirstEcommerceStore.Data
             using var cmd = new NpgsqlCommand();
             cmd.Connection = con;
 
-            string sql = $"delete from products where brandid = \'{brand.BrandId}\'";
+            string sql = $"delete from brands where brandid = \'{brand.BrandId}\'";
 
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {

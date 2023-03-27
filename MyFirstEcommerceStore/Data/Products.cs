@@ -12,6 +12,8 @@
 
         public Brand? Brand { get; set; }
 
+        public string? BrandName { get; set; }
+
 
     }
 }
