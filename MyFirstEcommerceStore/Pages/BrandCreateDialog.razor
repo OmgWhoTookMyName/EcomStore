@@ -1,16 +1,16 @@
-﻿@page "/createproduct"
+﻿@page "/createbrand"
 @using MyFirstEcommerceStore.Data
 @using Microsoft.Extensions.Logging
-@inject ILogger<ProductCreateDialog> Logger
+@inject ILogger<BrandCreateDialog> Logger
 @inject DialogService DialogService
 
-<RadzenFieldset Text="Product Info" Submit="@HandleSubmit">
+<RadzenFieldset Text="Brand Info" Submit="@HandleSubmit">
                     <div class="row">
                         <div class="align-items-center d-flex col-md-2">
-                            <RadzenLabel Text="SKU" />
+                            <RadzenLabel Text="Brand Code" />
                         </div>
                         <div class="col-md-10">
-                            <RadzenTextBox Placeholder="123-456" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@product.ProductId />
+                            <RadzenTextBox Placeholder="QUAK" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@brand.BrandId />
                         </div>
                     </div>
                     <div class="row">
@@ -18,7 +18,7 @@
                             <RadzenLabel Text="Name" />
                         </div>
                         <div class="col-md-6">
-                            <RadzenTextBox Placeholder="Rainbow PLA" style="width: 100%;" Name="Product Name" @bind-Value=@product.ProductName/>
+                            <RadzenTextBox Placeholder="Quaker State" style="width: 100%;" Name="Product Name" @bind-Value=@brand.Name/>
                         </div>
                     </div>
                     <div class="row">
@@ -26,15 +26,7 @@
                             <RadzenLabel Text="Description" />
                         </div>
                         <div class="col-md-10">
-                            <RadzenTextBox Placeholder="3D Printer Filament 1.75mm" style="width: 100%;" Name="Product Description" @bind-Value=@product.ProductDescription/>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="align-items-center d-flex col-md-2">
-                            <RadzenLabel Text="Brand" />
-                        </div>
-                        <div class="col-md-10">
-                            <RadzenDropDownDataGrid @bind-Value=@brandName Data=@brandNames />
+                            <RadzenTextBox Placeholder="Fiber for days" style="width: 100%;" Name="Product Description" @bind-Value=@brand.Description/>
                         </div>
                     </div>
                 </RadzenFieldset>
@@ -46,33 +38,15 @@
         </div>
 
 @code {
-    private Products product = new();
+    private Brand brand = new();
     private ProductCRUD crud = new();
-    List<string> brandNames;
-    string brandName;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        brandNames = await crud.GetBrandNames();
-    }
 
     private async void HandleSubmit()
     {
-        Brand brandToLink = new Brand();
-
-        if(brandName != null){
-            brandToLink = await crud.BrandLookup(brandName);
-        }
         // Process the form
-        if(product != null)
+        if(brand != null)
         {
-            await crud.CreateProducts(product);
-        }
-
-        if(product != null & brandName != null)
-        {
-            await crud.LinkBrandsToProducts(product, brandToLink);
+            await crud.CreateBrand(brand);
         }
         DialogService.Close();
     }

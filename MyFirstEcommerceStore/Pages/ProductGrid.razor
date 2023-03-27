@@ -12,6 +12,7 @@
         <RadzenDataGridColumn TItem="Products" Property="ProductName" Title="Name" Width="160px"/>
         <RadzenDataGridColumn TItem="Products" Property="ProductDescription" Title="Description" Width="200px" />
         <RadzenDataGridColumn TItem="Products" Property="Price" Title="Price" Width="120px" />
+        <RadzenDataGridColumn TItem="Products" Property="BrandName" Title="Brand" Width="120px" />
         <RadzenDataGridColumn Width="160px" TItem="Products" Property="ProductId" Title="Delete">
             <Template Context="products">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@products)) Icon="info" Class="m-1" Text="Delete" />
