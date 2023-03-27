@@ -4,13 +4,38 @@
 @inject ILogger<ProductCreateDialog> Logger
 @inject DialogService DialogService
 
-<EditForm Model="@product" OnSubmit="@HandleSubmit">
-    <label for="SKU">SKU:<InputText id="SKU" @bind-Value="product.ProductId" required/></label>
-    <label for="productName">Name:<InputText id="productName" @bind-Value="product.ProductName" required/></label>
-    <label for="Description">Description:<InputText id="Description" @bind-Value="product.ProductDescription" /></label>
-    <br>
-    <button type="submit" class="btn btn-secondary">Submit</button>
-</EditForm>
+<RadzenFieldset Text="Product Info" Submit="@HandleSubmit">
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="SKU" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenTextBox Placeholder="123-456" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@product.ProductId />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Name" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenTextBox Placeholder="Rainbow PLA" style="width: 100%;" Name="Product Name" @bind-Value=@product.ProductName/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Description" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenTextBox Placeholder="3D Printer Filament 1.75mm" style="width: 100%;" Name="Product Description" @bind-Value=@product.ProductDescription/>
+                        </div>
+                    </div>
+                </RadzenFieldset>
+          <div class="row justify-content-center">
+            <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click=@(args => @HandleSubmit())/>
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+            </div>
+        </div>
 
 @code {
     private Products product = new();
@@ -26,5 +51,10 @@
             await crud.CreateProducts(product);
         }
         DialogService.Close();
+    }
+
+    void Cancel()
+    {
+        DialogService.Close();    
     }
 }
