@@ -41,7 +41,7 @@
     }
 
     private async Task CreateProduct(){
-        await DialogService.OpenAsync<ProductCreateDialog>("Hello");
+        await DialogService.OpenAsync<ProductCreateDialog>("Create Product");
         await Refresh();
     }
 
