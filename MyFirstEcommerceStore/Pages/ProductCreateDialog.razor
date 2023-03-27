@@ -29,9 +29,14 @@
                             <RadzenTextBox Placeholder="3D Printer Filament 1.75mm" style="width: 100%;" Name="Product Description" @bind-Value=@product.ProductDescription/>
                         </div>
                     </div>
-                    <div class="rz-p-12 rz-text-align-center">
-                            <RadzenDropDownDataGrid @bind-Value=@brandTest Data=@brandNames />
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Brand" />
                         </div>
+                        <div class="col-md-10">
+                            <RadzenDropDownDataGrid @bind-Value=@brandName Data=@brandNames />
+                        </div>
+                    </div>
                 </RadzenFieldset>
           <div class="row justify-content-center">
             <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
@@ -43,24 +48,21 @@
 @code {
     private Products product = new();
     private ProductCRUD crud = new();
-    List<Brand> brands;
     List<string> brandNames;
-    string brandTest;
+    string brandName;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         brandNames = await crud.GetBrandNames();
-        //brands
     }
-
-
 
     private async void HandleSubmit()
     {
         Brand brandToLink = new Brand();
-        if(brandTest != null){
-            brandToLink = await crud.BrandLookup(brandTest);
+
+        if(brandName != null){
+            brandToLink = await crud.BrandLookup(brandName);
         }
         // Process the form
         if(product != null)
@@ -68,7 +70,7 @@
             await crud.CreateProducts(product);
         }
 
-        if(product != null & brandTest != null)
+        if(product != null & brandName != null)
         {
             await crud.LinkBrandsToProducts(product, brandToLink);
         }
