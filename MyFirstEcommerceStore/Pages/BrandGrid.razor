@@ -1,0 +1,48 @@
+﻿@page "/brandgrid"
+@using MyFirstEcommerceStore.Data
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<RadzenButton Text="New Brand" ButtonStyle="ButtonStyle.Secondary" Click=@CreateBrand/>
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+    Data="@brands" Grid="grid" TItem="Brand" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
+    <Columns>
+        <RadzenDataGridColumn TItem="Brand" Property="BrandId" Title="SKU" Width="160px" />
+        <RadzenDataGridColumn TItem="Brand" Property="Name" Title="Name" Width="160px"/>
+        <RadzenDataGridColumn TItem="Brand" Property="Description" Title="Description" Width="200px" />
+        <RadzenDataGridColumn Width="160px" TItem="Brand" Property="BrandId" Title="Delete">
+            <Template Context="brands">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@brands)) Icon="info" Class="m-1" Text="Delete" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+
+    IEnumerable<Brand> brands;
+    private ProductCRUD crud = new();
+    RadzenDataGrid<Brand> grid = new RadzenDataGrid<Brand>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+ 
+        brands = await crud.GetAllBrands();
+    }
+
+    private async Task CreateBrand(){
+        await DialogService.OpenAsync<BrandCreateDialog>("Create Brand");
+        await Refresh();
+    }
+
+    private async void HandleDelete(Brand brand)
+    {
+        await crud.DeleteBrand(brand);
+        brands = await crud.GetAllBrands();
+    }
+
+    private async Task Refresh(){
+        brands = await crud.GetAllBrands();
+    }
+}

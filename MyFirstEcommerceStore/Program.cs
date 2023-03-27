@@ -17,6 +17,12 @@ cmd.Connection = con;
 //TODO: Move the Db creation to its own class
 cmd.CommandText = "CREATE TABLE if not exists products(id SERIAL PRIMARY KEY, ProductName VARCHAR(75), price INT, ProductDescription VARCHAR(255), ProductId VARCHAR(50))";
 cmd.ExecuteNonQuery();
+cmd.CommandText = "CREATE TABLE if not exists Brands(id SERIAL PRIMARY KEY, Name VARCHAR(60), Description VARCHAR(255), BrandId VARCHAR(50))";
+cmd.ExecuteNonQuery();
+cmd.CommandText = "CREATE TABLE if not exists BrandLinks(id SERIAL PRIMARY KEY, ProductId VARCHAR(50), BrandId VARCHAR(50))";
+cmd.ExecuteNonQuery();
+
+con.Close();
 
 
 // Add services to the container.
