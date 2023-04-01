@@ -8,6 +8,18 @@
 <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
     Data="@products" Grid="grid" TItem="Products" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or">
     <Columns>
+        <RadzenDataGridColumn TItem="Products" Property="URL" Title="Photo" Frozen="true" Sortable="false" Filterable="false" Width="80px" TextAlign="TextAlign.Center" >
+            <Template Context="products">
+                @if (!string.IsNullOrEmpty(products.URL))
+                {
+                    <RadzenImage src="@($"Upload/{products.URL}")" class="rz-gravatar" />
+                }
+                else
+                {
+                    <RadzenImage src="https://www.pngkey.com/png/detail/233-2332677_image-500580-placeholder-transparent.png" class="rz-gravatar" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Products" Property="ProductId" Title="SKU" Width="160px" />
         <RadzenDataGridColumn TItem="Products" Property="ProductName" Title="Name" Width="160px"/>
         <RadzenDataGridColumn TItem="Products" Property="ProductDescription" Title="Description" Width="200px" />
