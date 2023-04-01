@@ -37,6 +37,12 @@
                             <RadzenDropDownDataGrid @bind-Value=@brandName Data=@brandNames />
                         </div>
                     </div>
+                    <div class="col-md-4 p-3">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Single file upload</RadzenText>
+                                <RadzenUpload Url="upload/single" Progress="@((args) => OnProgress(args, "Single file upload"))" Accept="image/*"/>
+                        </RadzenCard>
+                    </div>
                 </RadzenFieldset>
           <div class="row justify-content-center">
             <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
@@ -48,8 +54,9 @@
 @code {
     private Products product = new();
     private ProductCRUD crud = new();
+    private string? URL;
     List<string> brandNames;
-    string brandName;
+    string? brandName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,9 +77,14 @@
             await crud.CreateProducts(product);
         }
 
-        if(product != null & brandName != null)
+        if(product != null && brandName != null)
         {
             await crud.LinkBrandsToProducts(product, brandToLink);
+        }
+
+        if(product != null && URL != null)
+        {
+            await crud.UploadImagePathsToDb(URL, product);
         }
         DialogService.Close();
     }
@@ -81,4 +93,19 @@
     {
         DialogService.Close();    
     }
+
+    void OnProgress(UploadProgressArgs args, string name)
+    {
+
+        if (args.Progress == 100)
+        {
+            foreach (var file in args.Files)
+            {
+                URL = $"{ file.Name}";
+            }
+        }
+    }
+
+
+
 }

@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Microsoft.Extensions.FileProviders;
+using Npgsql;
 using System.Security.Cryptography;
 
 namespace MyFirstEcommerceStore.Data
@@ -37,14 +38,14 @@ namespace MyFirstEcommerceStore.Data
 
             var products = new List<Products>();
 
-            string sql = "select p.productid, productname, productdescription, b.name from products p left join brandLinks bl on p.productid=bl.productid left join brands b on b.brandid=bl.brandid";
+            string sql = "select p.productid, productname, productdescription, b.name, pi.URL from products p left join brandLinks bl on p.productid=bl.productid left join brands b on b.brandid=bl.brandid left join ProductImages pi on pi.productid=p.productid";
 
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
                 while (rea.Read())
                 {
-                    products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString() });
+                    products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString(), URL = rea[4].ToString() });
                 }
                 
             }
@@ -195,5 +196,23 @@ namespace MyFirstEcommerceStore.Data
         }
 
         #endregion
+
+        public async Task<bool> UploadImagePathsToDb(string url, Products product)
+        {
+            var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
+
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+
+            cmd.CommandText = $"INSERT INTO ProductImages(ProductId, URL) VALUES('{product.ProductId}','{url}')";
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+            return await Task.FromResult(true);
+        }
     }
 }

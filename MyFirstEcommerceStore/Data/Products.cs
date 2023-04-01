@@ -14,6 +14,8 @@
 
         public string? BrandName { get; set; }
 
+        public string? URL { get; set; }
+
 
     }
 }

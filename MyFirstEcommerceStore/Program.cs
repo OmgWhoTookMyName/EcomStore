@@ -6,7 +6,8 @@ using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//DB login
+//DB login + add tables
+//TODO: Move this db login stuff to config file?
 var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
 
 using var con = new NpgsqlConnection(cs);
@@ -20,6 +21,8 @@ cmd.ExecuteNonQuery();
 cmd.CommandText = "CREATE TABLE if not exists Brands(id SERIAL PRIMARY KEY, Name VARCHAR(60), Description VARCHAR(255), BrandId VARCHAR(50))";
 cmd.ExecuteNonQuery();
 cmd.CommandText = "CREATE TABLE if not exists BrandLinks(id SERIAL PRIMARY KEY, ProductId VARCHAR(50), BrandId VARCHAR(50))";
+cmd.ExecuteNonQuery();
+cmd.CommandText = "CREATE TABLE if not exists ProductImages(id SERIAL PRIMARY KEY, ProductId VARCHAR(50), URL VARCHAR(1000))";
 cmd.ExecuteNonQuery();
 
 con.Close();
@@ -50,6 +53,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
