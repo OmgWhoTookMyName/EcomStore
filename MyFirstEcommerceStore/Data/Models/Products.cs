@@ -1,4 +1,4 @@
-﻿namespace MyFirstEcommerceStore.Data
+﻿namespace MyFirstEcommerceStore.Data.Models
 {
     public class Products
     {
@@ -6,9 +6,9 @@
 
         public string ProductName { get; set; } = null!;
 
-        public string? ProductDescription { get; set; } 
-        
-        public int? Price { get; set; }
+        public string? ProductDescription { get; set; }
+
+        public double? Price { get; set; }
 
         public Brand? Brand { get; set; }
 

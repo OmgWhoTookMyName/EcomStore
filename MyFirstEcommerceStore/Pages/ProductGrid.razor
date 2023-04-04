@@ -1,5 +1,6 @@
 ﻿@page "/productgrid"
-@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data;
+@using MyFirstEcommerceStore.Data.Models
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
@@ -47,8 +48,7 @@
 
     private async void HandleDelete(Products product)
     {
-        Console.WriteLine("Handling deletes " + product.ProductId);
-
+        product = await crud.ProductCleanser(product);
         await crud.DeleteProduct(product);
         products = await crud.GetAllProducts();
     }

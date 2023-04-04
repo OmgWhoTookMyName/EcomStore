@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using MyFirstEcommerceStore.Data.Models;
 using Npgsql;
-using System.Security.Cryptography;
 
 namespace MyFirstEcommerceStore.Data
 {
@@ -9,7 +8,7 @@ namespace MyFirstEcommerceStore.Data
         #region Products
         public Task<Products> CreateProducts(Products product)
         {
-            //TODO: create a check for uniqueness
+
             var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
 
             using var con = new NpgsqlConnection(cs);
@@ -18,11 +17,44 @@ namespace MyFirstEcommerceStore.Data
             using var cmd = new NpgsqlCommand();
             cmd.Connection = con;
 
-            cmd.CommandText = $"INSERT INTO products(ProductId, ProductName, ProductDescription) VALUES('{product.ProductId}','{product.ProductName}','{product.ProductDescription}')";
+            cmd.CommandText = $"INSERT INTO products(ProductId, ProductName, ProductDescription, Price) VALUES('{product.ProductId}','{product.ProductName}','{product.ProductDescription}', {product.Price})";
             cmd.ExecuteNonQuery();
 
             con.Close();
             return Task.FromResult(product);
+        }
+
+        public Task<Products> ProductCleanser(Products product)
+        {
+            Products cleansedProduct = product;
+            string productId = product.ProductId;
+            string productName = product.ProductName;
+            string? productDescription = null;
+            //Cleanse the data of '
+            if (!string.IsNullOrEmpty(product.ProductDescription))
+            {
+                productDescription = product.ProductDescription;
+            }
+
+            if (productId.Contains("'"))
+            {
+                productId = productId.Replace("'", @"''");
+                cleansedProduct.ProductId = productId;
+            }
+
+            if (productName.Contains("'"))
+            {
+                productName = productName.Replace("'", @"''");
+                cleansedProduct.ProductName = productName;
+            }
+
+            if (!string.IsNullOrEmpty(productDescription))
+            {
+                productDescription = productDescription.Replace("'", @"''");
+                cleansedProduct.ProductDescription = productDescription;
+            }
+
+            return Task.FromResult(cleansedProduct);
         }
 
         public Task<List<Products>> GetAllProducts()
@@ -38,14 +70,21 @@ namespace MyFirstEcommerceStore.Data
 
             var products = new List<Products>();
 
-            string sql = "select p.productid, productname, productdescription, b.name, pi.URL from products p left join brandLinks bl on p.productid=bl.productid left join brands b on b.brandid=bl.brandid left join ProductImages pi on pi.productid=p.productid";
+            string sql = "select p.productid, productname, productdescription, b.name, pi.URL, p.price from products p left join brandLinks bl on p.productid=bl.productid left join brands b on b.brandid=bl.brandid left join ProductImages pi on pi.productid=p.productid";
 
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
                 while (rea.Read())
                 {
-                    products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString(), URL = rea[4].ToString() });
+                    if (!string.IsNullOrEmpty(rea[5].ToString())){
+                        products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString(), URL = rea[4].ToString(), Price = Convert.ToDouble(rea[5]) });
+                    }
+                    else
+                    {
+                        products.Add(new Products() { ProductName = rea[1].ToString(), ProductDescription = rea[2].ToString(), ProductId = rea[0].ToString(), BrandName = rea[3].ToString(), URL = rea[4].ToString() });
+                    }
+                    
                 }
                 
             }
@@ -56,6 +95,7 @@ namespace MyFirstEcommerceStore.Data
 
         public Task<bool> DeleteProduct(Products product)
         {
+
             var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
 
             using var con = new NpgsqlConnection(cs);
@@ -193,6 +233,44 @@ namespace MyFirstEcommerceStore.Data
 
             con.Close();
             return await Task.FromResult(true);
+        }
+
+        public Task<Brand> BrandCleanser(Brand brand)
+        {
+            Brand cleansedBrand = brand;
+            string brandId = brand.BrandId;
+            string? brandName = null;
+            string? brandDescription = null;
+            //Cleanse the data of '
+            if (!string.IsNullOrEmpty(brand.Name))
+            {
+                brandName = brand.Name;
+            }
+
+            if (!string.IsNullOrEmpty(brand.Description))
+            {
+                brandName = brand.Description;
+            }
+
+            if (brandId.Contains("'"))
+            {
+                brandId = brandId.Replace("'", @"''");
+                cleansedBrand.BrandId = brandId;
+            }
+
+            if (brandName.Contains("'"))
+            {
+                brandName = brandName.Replace("'", @"''");
+                cleansedBrand.Name = brandName;
+            }
+
+            if (!string.IsNullOrEmpty(brandDescription))
+            {
+                brandDescription = brandDescription.Replace("'", @"''");
+                cleansedBrand.Description = brandDescription;
+            }
+
+            return Task.FromResult(cleansedBrand);
         }
 
         #endregion

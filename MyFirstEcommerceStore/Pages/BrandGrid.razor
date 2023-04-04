@@ -1,5 +1,6 @@
 ﻿@page "/brandgrid"
-@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data;
+@using MyFirstEcommerceStore.Data.Models
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
@@ -27,7 +28,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
- 
+
         brands = await crud.GetAllBrands();
     }
 
@@ -38,6 +39,7 @@
 
     private async void HandleDelete(Brand brand)
     {
+        brand = await crud.BrandCleanser(brand);
         await crud.DeleteBrand(brand);
         brands = await crud.GetAllBrands();
     }

@@ -1,16 +1,18 @@
 ﻿@page "/createbrand"
+@using MyFirstEcommerceStore.Data.Models
 @using MyFirstEcommerceStore.Data
 @using Microsoft.Extensions.Logging
 @inject ILogger<BrandCreateDialog> Logger
 @inject DialogService DialogService
 
-<RadzenFieldset Text="Brand Info" Submit="@HandleSubmit">
+<RadzenTemplateForm Data="@brand" TItem="Brand" Submit=@HandleSubmit>
                     <div class="row">
                         <div class="align-items-center d-flex col-md-2">
                             <RadzenLabel Text="Brand Code" />
                         </div>
                         <div class="col-md-10">
-                            <RadzenTextBox Placeholder="QUAK" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@brand.BrandId />
+                            <RadzenTextBox Placeholder="QUAK" style="width: 10rem; margin-right: 0.5rem" Name="BrandId" @bind-Value=@brand.BrandId />
+                            <RadzenRequiredValidator Component="BrandId" Text="BrandId is required" Style="position: absolute" />
                         </div>
                     </div>
                     <div class="row">
@@ -18,7 +20,8 @@
                             <RadzenLabel Text="Name" />
                         </div>
                         <div class="col-md-6">
-                            <RadzenTextBox Placeholder="Quaker State" style="width: 100%;" Name="Product Name" @bind-Value=@brand.Name/>
+                            <RadzenTextBox Placeholder="Quaker State" style="width: 100%;" Name="Brand Name" @bind-Value=@brand.Name/>
+                            <RadzenRequiredValidator Component="Brand Name" Text="Brand Name is required" Style="position: absolute" />
                         </div>
                     </div>
                     <div class="row">
@@ -26,16 +29,16 @@
                             <RadzenLabel Text="Description" />
                         </div>
                         <div class="col-md-10">
-                            <RadzenTextBox Placeholder="Fiber for days" style="width: 100%;" Name="Product Description" @bind-Value=@brand.Description/>
+                            <RadzenTextBox Placeholder="Fiber for days" style="width: 100%;" Name="Brand Description" @bind-Value=@brand.Description/>
                         </div>
                     </div>
-                </RadzenFieldset>
-          <div class="row justify-content-center">
-            <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
-                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click=@(args => @HandleSubmit())/>
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
-            </div>
-        </div>
+                      <div class="row justify-content-center">
+                        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save"/>
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+                        </div>
+                    </div>
+</RadzenTemplateForm>
 
 @code {
     private Brand brand = new();
@@ -43,6 +46,7 @@
 
     private async void HandleSubmit()
     {
+        brand = await crud.BrandCleanser(brand);
         // Process the form
         if(brand != null)
         {
