@@ -1,16 +1,18 @@
 ﻿@page "/createproduct"
+@using MyFirstEcommerceStore.Data.Models
 @using MyFirstEcommerceStore.Data
 @using Microsoft.Extensions.Logging
 @inject ILogger<ProductCreateDialog> Logger
 @inject DialogService DialogService
 
-<RadzenFieldset Text="Product Info" Submit="@HandleSubmit">
+<RadzenTemplateForm Data="@product" TItem="Products" Submit=@HandleSubmit>
                     <div class="row">
                         <div class="align-items-center d-flex col-md-2">
                             <RadzenLabel Text="SKU" />
                         </div>
                         <div class="col-md-10">
-                            <RadzenTextBox Placeholder="123-456" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@product.ProductId />
+                            <RadzenTextBox Placeholder="123-456" style="width: 10rem; margin-right: 0.5rem" Name="ProductId" @bind-Value=@product.ProductId/>
+                            <RadzenRequiredValidator Component="ProductId" Text="SKU is required" Style="position: absolute" />
                         </div>
                     </div>
                     <div class="row">
@@ -19,6 +21,7 @@
                         </div>
                         <div class="col-md-6">
                             <RadzenTextBox Placeholder="Rainbow PLA" style="width: 100%;" Name="Product Name" @bind-Value=@product.ProductName/>
+                            <RadzenRequiredValidator Component="Product Name" Text="Name is required" Style="position: absolute" />
                         </div>
                     </div>
                     <div class="row">
@@ -27,6 +30,14 @@
                         </div>
                         <div class="col-md-10">
                             <RadzenTextBox Placeholder="3D Printer Filament 1.75mm" style="width: 100%;" Name="Product Description" @bind-Value=@product.ProductDescription/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Price" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenNumeric @bind-Value=@price Step="0.01" Placeholder="0.0"/>
                         </div>
                     </div>
                     <div class="row">
@@ -43,17 +54,19 @@
                                 <RadzenUpload Url="upload/single" Progress="@((args) => OnProgress(args, "Single file upload"))" Accept="image/*"/>
                         </RadzenCard>
                     </div>
-                </RadzenFieldset>
-          <div class="row justify-content-center">
-            <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
-                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click=@(args => @HandleSubmit())/>
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
-            </div>
-        </div>
+                      <div class="row justify-content-center">
+                        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save"/>
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+                        </div>
+                    </div>
+</RadzenTemplateForm>
 
 @code {
     private Products product = new();
     private ProductCRUD crud = new();
+    Brand brandToLink = new Brand();
+    double? price;
     private string? URL;
     List<string> brandNames;
     string? brandName;
@@ -66,7 +79,8 @@
 
     private async void HandleSubmit()
     {
-        Brand brandToLink = new Brand();
+        product.Price = price;
+        product = await crud.ProductCleanser(product);
 
         if(brandName != null){
             brandToLink = await crud.BrandLookup(brandName);
