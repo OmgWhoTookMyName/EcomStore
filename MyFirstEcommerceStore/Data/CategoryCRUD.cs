@@ -1,6 +1,8 @@
 ﻿using MyFirstEcommerceStore.Data.Enums;
 using MyFirstEcommerceStore.Data.Models;
 using Npgsql;
+using Radzen.Blazor;
+using System.Reflection.PortableExecutable;
 
 
 namespace MyFirstEcommerceStore.Data
@@ -41,12 +43,50 @@ namespace MyFirstEcommerceStore.Data
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
+                string catId, catDesc, catName, parentCat;
                 while (rea.Read())
                 {
                     if (!string.IsNullOrEmpty(rea[5].ToString())){
                         Enum.TryParse(rea[5].ToString(), out tierEnum);
                     }
-                    cats.Add(new Category() { CategoryId = rea[1].ToString(), CategoryDescription = rea[3].ToString(), CategoryName = rea[2].ToString(), ParentCategoryId = rea[4].ToString(), Tier = tierEnum });
+                    int catIdIndex = rea.GetOrdinal("categoryid");
+                    int catDescIndex = rea.GetOrdinal("description");
+                    int catNameIndex = rea.GetOrdinal("name");
+                    int catParentIndex = rea.GetOrdinal("parentcategoryid");
+                    if (!rea.IsDBNull(catIdIndex))
+                    {
+                        catId = rea.GetString(catIdIndex);
+                    }
+                    else
+                    {
+                        catId = string.Empty;
+                    }
+                    if(!rea.IsDBNull(catDescIndex))
+                    {
+                        catDesc = rea.GetString(catDescIndex);
+                    }
+                    else
+                    {
+                        catDesc = string.Empty;
+                    }
+                    if(!rea.IsDBNull(catNameIndex))
+                    {
+                        catName = rea.GetString(catNameIndex);
+                    }
+                    else
+                    {
+                        catName = string.Empty;
+                    }
+                    if(!rea.IsDBNull (catParentIndex))
+                    {
+                        parentCat = rea.GetString(catParentIndex);
+                    }
+                    else
+                    {
+                        parentCat = string.Empty;
+                    }
+
+                    cats.Add(new Category() { CategoryId = catId, CategoryDescription = catDesc, CategoryName = catName, ParentCategoryId = parentCat, Tier = tierEnum });
                 }
             }
             con.Close();
@@ -68,19 +108,57 @@ namespace MyFirstEcommerceStore.Data
 
             var cats = new List<Category>();
 
-            string sql = $"select * from categories where tier = '{tier.ToString()}'";
+            string sql = $"select * from categories where tier = '{tier}'";
             Tier tierEnum = Tier.Tier1;
 
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
+                string catId, catDesc, catName, parentCat;
                 while (rea.Read())
                 {
                     if (!string.IsNullOrEmpty(rea[5].ToString()))
                     {
                         Enum.TryParse(rea[5].ToString(), out tierEnum);
                     }
-                    cats.Add(new Category() { CategoryId = rea[1].ToString(), CategoryDescription = rea[3].ToString(), CategoryName = rea[2].ToString(), ParentCategoryId = rea[4].ToString(), Tier = tierEnum });
+                    int catIdIndex = rea.GetOrdinal("categoryid");
+                    int catDescIndex = rea.GetOrdinal("description");
+                    int catNameIndex = rea.GetOrdinal("name");
+                    int catParentIndex = rea.GetOrdinal("parentcategoryid");
+                    if (!rea.IsDBNull(catIdIndex))
+                    {
+                        catId = rea.GetString(catIdIndex);
+                    }
+                    else
+                    {
+                        catId = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catDescIndex))
+                    {
+                        catDesc = rea.GetString(catDescIndex);
+                    }
+                    else
+                    {
+                        catDesc = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catNameIndex))
+                    {
+                        catName = rea.GetString(catNameIndex);
+                    }
+                    else
+                    {
+                        catName = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catParentIndex))
+                    {
+                        parentCat = rea.GetString(catParentIndex);
+                    }
+                    else
+                    {
+                        parentCat = string.Empty;
+                    }
+
+                    cats.Add(new Category() { CategoryId = catId, CategoryDescription = catDesc, CategoryName = catName, ParentCategoryId = parentCat, Tier = tierEnum });
                 }
             }
             con.Close();
@@ -106,13 +184,51 @@ namespace MyFirstEcommerceStore.Data
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
+                string catId, catDesc, catName, parenCat;
                 while (rea.Read())
                 {
                     if (!string.IsNullOrEmpty(rea[5].ToString()))
                     {
                         Enum.TryParse(rea[5].ToString(), out tierEnum);
                     }
-                    cats.Add(new Category() { CategoryId = rea[1].ToString(), CategoryDescription = rea[3].ToString(), CategoryName = rea[2].ToString(), ParentCategoryId = rea[4].ToString(), Tier = tierEnum });
+                    int catIdIndex = rea.GetOrdinal("categoryid");
+                    int catDescIndex = rea.GetOrdinal("description");
+                    int catNameIndex = rea.GetOrdinal("name");
+                    int catParentIndex = rea.GetOrdinal("parentcategoryid");
+                    if (!rea.IsDBNull(catIdIndex))
+                    {
+                        catId = rea.GetString(catIdIndex);
+                    }
+                    else
+                    {
+                        catId = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catDescIndex))
+                    {
+                        catDesc = rea.GetString(catDescIndex);
+                    }
+                    else
+                    {
+                        catDesc = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catNameIndex))
+                    {
+                        catName = rea.GetString(catNameIndex);
+                    }
+                    else
+                    {
+                        catName = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catParentIndex))
+                    {
+                        parenCat = rea.GetString(catParentIndex);
+                    }
+                    else
+                    {
+                        parenCat = string.Empty;
+                    }
+
+                    cats.Add(new Category() { CategoryId = catId, CategoryDescription = catDesc, CategoryName = catName, ParentCategoryId = parenCat, Tier = tierEnum });
                 }
             }
 
@@ -140,20 +256,53 @@ namespace MyFirstEcommerceStore.Data
             using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
             {
                 NpgsqlDataReader rea = command.ExecuteReader();
-                if (rea.HasRows)
+                string catId, catDesc, catName, parenCat;
+                while (rea.Read())
                 {
-                    while (rea.Read())
+                    if (!string.IsNullOrEmpty(rea[5].ToString()))
                     {
-                        if (!string.IsNullOrEmpty(rea[5].ToString()))
-                        {
-                            Enum.TryParse(rea[5].ToString(), out tierEnum);
-                        }
-
-                        cat = new Category() { CategoryId = rea[1].ToString(), CategoryDescription = rea[3].ToString(), CategoryName = rea[2].ToString(), ParentCategoryId = rea[4].ToString(), Tier = tierEnum };
-
+                        Enum.TryParse(rea[5].ToString(), out tierEnum);
+                    }
+                    int catIdIndex = rea.GetOrdinal("categoryid");
+                    int catDescIndex = rea.GetOrdinal("description");
+                    int catNameIndex = rea.GetOrdinal("name");
+                    int catParentIndex = rea.GetOrdinal("parentcategoryid");
+                    if (!rea.IsDBNull(catIdIndex))
+                    {
+                        catId = rea.GetString(catIdIndex);
+                    }
+                    else
+                    {
+                        catId = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catDescIndex))
+                    {
+                        catDesc = rea.GetString(catDescIndex);
+                    }
+                    else
+                    {
+                        catDesc = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catNameIndex))
+                    {
+                        catName = rea.GetString(catNameIndex);
+                    }
+                    else
+                    {
+                        catName = string.Empty;
+                    }
+                    if (!rea.IsDBNull(catParentIndex))
+                    {
+                        parenCat = rea.GetString(catParentIndex);
+                    }
+                    else
+                    {
+                        parenCat = string.Empty;
                     }
 
+                    cat = (new Category() { CategoryId = catId, CategoryDescription = catDesc, CategoryName = catName, ParentCategoryId = parenCat, Tier = tierEnum });
                 }
+
             }
             con.Close();
             return Task.FromResult(cat);

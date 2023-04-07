@@ -71,9 +71,9 @@
     private Category category = new();
     private CategoryCRUD crud = new();
     IEnumerable<Tier> tiers = Enum.GetValues(typeof(Tier)).Cast<Tier>();
-    IEnumerable<Category> tieredCats;
-    IEnumerable<string?> tieredCatNames;
-    private string parentCat;
+    IEnumerable<Category>? tieredCats;
+    IEnumerable<string>? tieredCatNames;
+    private string? parentCat;
 
     private async void HandleSubmit()
     {
@@ -81,9 +81,11 @@
         // Process the form
         if (category != null)
         {
-            var newCat = await crud.GetCategoryByName(parentCat);
-            category.ParentCategoryId = newCat.CategoryId;
-
+            if(parentCat != null)
+            {
+                var newCat = await crud.GetCategoryByName(parentCat);
+                category.ParentCategoryId = newCat.CategoryId;
+            }
             await crud.CreateCategory(category);
         }
         DialogService.Close();
@@ -91,23 +93,14 @@
 
     private async void OnChange()
     {
-        Tier newTier;
-        if(category.Tier is not null && category.Tier != Tier.Tier1)
+        if(category.Tier != null && category.Tier != Tier.Tier1 && category != null)
         {
             int index = Array.IndexOf(Enum.GetValues(category.Tier.GetType()), category.Tier);
-            newTier = (Tier)(Enum.GetValues(category.Tier.GetType())).GetValue(index - 1);
+            Tier newTier = (Tier)(Enum.GetValues(category.Tier.GetType())).GetValue(index - 1);
             tieredCats = await crud.GetAllCategoriesByTier(newTier);
             tieredCatNames = tieredCats.Select(a => a.CategoryName);
         }
     }
-
-    private async void LookupParentChange()
-    {
-        var newCat = await crud.GetCategoryByName(parentCat);
-        category.ParentCategoryId = newCat.ParentCategoryId;
-
-    }
-
 
     void Cancel()
     {
