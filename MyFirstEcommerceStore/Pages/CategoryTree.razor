@@ -1,0 +1,106 @@
+﻿@page "/categorytree"
+@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data.Models
+@using MyFirstEcommerceStore.Data.Enums
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<RadzenButton Text="New Category" ButtonStyle="ButtonStyle.Secondary" Click=@CreateCategory />
+
+<div class="col-md-4">
+    <RadzenCard>
+        <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H1" class="mb-0">Category Tree</RadzenText>
+        <RadzenTree Data=@treeCategories Style="height: 300px" Expand=@OnExpand>
+            <RadzenTreeLevel TextProperty="CategoryName" />
+        </RadzenTree>
+    </RadzenCard>
+</div>
+
+
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@gridCats" Grid="grid" TItem="Category" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" AllowGrouping="true" Render="@OnRender">
+    <Columns>
+        <RadzenDataGridColumn TItem="Category" Property="CategoryId" Title="Category Id" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="CategoryName" Title="Name" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="CategoryDescription" Title="Description" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="ParentCategoryId" Title="Parent" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="Tier" Title="Tier" Width="160px" />
+        <RadzenDataGridColumn Width="160px" TItem="Category" Property="CategoryId" Title="Delete">
+            <Template Context="cats">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@cats)) Icon="info" Class="m-1" Text="Delete" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+
+@code {
+
+    IEnumerable<Category?> gridCats;
+    IEnumerable<Category?> treeCategories;
+    private CategoryCRUD catCrud = new();
+    RadzenDataGrid<Category> grid = new RadzenDataGrid<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        //Populates only top level categories for the tree
+        treeCategories = await catCrud.GetAllCategoriesByTier(Tier.Tier1);
+        //Grid needs all the categories than uses groups to break them up
+        gridCats = await catCrud.GetAllCategories();
+
+    }
+
+
+    async void OnExpand(TreeExpandEventArgs args)
+    {
+        Console.WriteLine("Expanding");
+        var category = args.Value as Category;
+        //When returning tier 3 or lower cats they get converted to string so need to search db for the name
+        if(category is null && !string.IsNullOrEmpty(args.Value.ToString()))
+        {
+            category = await catCrud.GetCategoryByName(args.Value.ToString());
+        }
+
+        if(category is not null)
+        {
+            //Get all categories by the parent id, however we need those in a list of strings 
+            var childrenCategories = await catCrud.GetAllChildren(category);
+            args.Children.Data = childrenCategories.Select(a => a.CategoryName);
+        }
+        else
+        {
+            args.Children.HasChildren = (product) => false;
+        }
+    }
+
+    private async void HandleDelete(Category category)
+    {
+        //TODO: Create Category Cleanser
+        await catCrud.DeleteCategory(category);
+        gridCats = await catCrud.GetAllCategories();
+    }
+
+    private async Task CreateCategory()
+    {
+        await DialogService.OpenAsync<CategoryCreateDialog>("Create Category");
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        gridCats = await catCrud.GetAllCategories();
+        treeCategories = await catCrud.GetAllCategoriesByTier(Tier.Tier1);
+    }
+
+    void OnRender(DataGridRenderEventArgs<Category> args)
+    {
+        if (args.FirstRender)
+        {
+            args.Grid.Groups.Add(new GroupDescriptor() { Property = "ParentCategoryId", SortOrder = SortOrder.Ascending });
+            StateHasChanged();
+        }
+    }
+
+}

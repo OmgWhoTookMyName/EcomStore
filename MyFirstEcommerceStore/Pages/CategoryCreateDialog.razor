@@ -1,0 +1,117 @@
+﻿@page "/createcategory"
+@using MyFirstEcommerceStore.Data.Models
+@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data.Enums
+@using Microsoft.Extensions.Logging
+@inject ILogger<CategoryCreateDialog> Logger
+@inject DialogService DialogService
+
+<RadzenTemplateForm Data="@category" TItem="Category" Submit=@HandleSubmit>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="CategoryId" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenTextBox Placeholder="ACC" style="width: 10rem; margin-right: 0.5rem" Name="CategoryId" @bind-Value=@category.CategoryId />
+                            <RadzenRequiredValidator Component="CategoryId" Text="CategoryId is required" Style="position: absolute" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Name" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenTextBox Placeholder="Accessories" style="width: 100%;" Name="Category Name" @bind-Value=@category.CategoryName />
+                            <RadzenRequiredValidator Component="Category Name" Text="Category Name is required" Style="position: absolute" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Description" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenTextBox Placeholder="Extras for your products" style="width: 100%;" Name="Brand Description" @bind-Value=@category.CategoryDescription />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Tier" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenDropDownDataGrid Name="Tier" @bind-Value=@category.Tier Data=tiers Change=@OnChange/>
+                        </div>
+                    </div>
+                    @if(category.Tier is null || category.Tier == Tier.Tier1)
+                    {
+                        
+
+                    }
+                    else
+                    {
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-2">
+                            <RadzenLabel Text="Parent Category" />
+                        </div>
+                        <div class="col-md-10">
+                            <RadzenDropDownDataGrid TValue=string Name="Parent Category" Data=tieredCatNames @bind-Value=parentCat/>
+                        </div>
+                    </div>
+                    }
+                    <div class="row justify-content-center">
+                        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+                        </div>
+                    </div>
+</RadzenTemplateForm>
+
+
+
+@code {
+    private Category category = new();
+    private CategoryCRUD crud = new();
+    IEnumerable<Tier> tiers = Enum.GetValues(typeof(Tier)).Cast<Tier>();
+    IEnumerable<Category> tieredCats;
+    IEnumerable<string?> tieredCatNames;
+    private string parentCat;
+
+    private async void HandleSubmit()
+    {
+        //category = await crud.BrandCleanser(brand);
+        // Process the form
+        if (category != null)
+        {
+            var newCat = await crud.GetCategoryByName(parentCat);
+            category.ParentCategoryId = newCat.CategoryId;
+
+            await crud.CreateCategory(category);
+        }
+        DialogService.Close();
+    }
+
+    private async void OnChange()
+    {
+        Tier newTier;
+        if(category.Tier is not null && category.Tier != Tier.Tier1)
+        {
+            int index = Array.IndexOf(Enum.GetValues(category.Tier.GetType()), category.Tier);
+            newTier = (Tier)(Enum.GetValues(category.Tier.GetType())).GetValue(index - 1);
+            tieredCats = await crud.GetAllCategoriesByTier(newTier);
+            tieredCatNames = tieredCats.Select(a => a.CategoryName);
+        }
+    }
+
+    private async void LookupParentChange()
+    {
+        var newCat = await crud.GetCategoryByName(parentCat);
+        category.ParentCategoryId = newCat.ParentCategoryId;
+
+    }
+
+
+    void Cancel()
+    {
+        DialogService.Close();
+    }
+
+}

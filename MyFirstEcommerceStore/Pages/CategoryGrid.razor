@@ -1,0 +1,63 @@
+﻿@page "/categorygrid"
+@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data.Models
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<RadzenButton Text="New Category" ButtonStyle="ButtonStyle.Secondary" Click=@CreateCategory />
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@gridCats" Grid="grid" TItem="Category" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" AllowGrouping="true" Render="@OnRender">
+    <Columns>
+        <RadzenDataGridColumn TItem="Category" Property="CategoryId" Title="Category Id" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="CategoryName" Title="Name" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="CategoryDescription" Title="Description" Width="160px" />
+        <RadzenDataGridColumn TItem="Category" Property="ParentCategoryId" Title="Parent" Width="160px"  />
+        <RadzenDataGridColumn TItem="Category" Property="Tier" Title="Tier" Width="160px" />
+        <RadzenDataGridColumn Width="160px" TItem="Category" Property="CategoryId" Title="Delete">
+            <Template Context="cats">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@cats)) Icon="info" Class="m-1" Text="Delete" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+
+    IEnumerable<Category> gridCats;
+    private CategoryCRUD catCrud = new();
+    RadzenDataGrid<Category> grid = new RadzenDataGrid<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        gridCats = await catCrud.GetAllCategories();
+    }
+
+    private async void HandleDelete(Category category)
+    {
+        //TODO: Create Category Cleanser
+        await catCrud.DeleteCategory(category);
+        gridCats = await catCrud.GetAllCategories();
+    }
+
+    private async Task CreateCategory()
+    {
+        await DialogService.OpenAsync<CategoryCreateDialog>("Create Category");
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        gridCats = await catCrud.GetAllCategories();
+    }
+
+    void OnRender(DataGridRenderEventArgs<Category> args)
+    {
+        if (args.FirstRender)
+        {
+            args.Grid.Groups.Add(new GroupDescriptor() { Property = "ParentCategoryId", SortOrder = SortOrder.Ascending });
+            StateHasChanged();
+        }
+    }
+}
