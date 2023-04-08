@@ -1,0 +1,68 @@
+﻿@page "/categorylinkgrid"
+@using MyFirstEcommerceStore.Data
+@using MyFirstEcommerceStore.Data.Models
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<RadzenButton Text="New Product Category" ButtonStyle="ButtonStyle.Secondary" Click=@CreateCategoryLink />
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@products" Grid="grid" TItem="Products" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" AllowGrouping="true" Render="@OnRender">
+    <Columns>
+        <RadzenDataGridColumn TItem="Products" Property="ProductId" Title="SKU" Width="160px" />
+        <RadzenDataGridColumn TItem="Products" Property="ProductName" Title="Name" Width="160px" />
+        <RadzenDataGridColumn TItem="Products" Property="CategoryName" Title="Category Name" Width="200px" />
+        <RadzenDataGridColumn Width="160px" TItem="Products" Property="ProductId" Title="Delete">
+            <Template Context="products">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Click=@(args => @HandleDelete(@products)) Icon="info" Class="m-1" Text="Delete" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    IEnumerable<Products>? products;
+    private ProductCRUD crud = new();
+    private CategoryCRUD catCrud = new();
+    RadzenDataGrid<Products> grid = new RadzenDataGrid<Products>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        products = await crud.GetAllCategoryLinks();
+    }
+
+    private async void HandleDelete(Products product)
+    {
+        product = await crud.ProductCleanser(product);
+
+        if (!string.IsNullOrEmpty(product.CategoryName))
+        {
+            var cat = await catCrud.GetCategoryByName(product.CategoryName);
+            await catCrud.DeleteCategoryLinks(product, cat);
+        }
+
+        await Refresh();
+    }
+
+    private async Task CreateCategoryLink()
+    {
+        await DialogService.OpenAsync<CategoryLinkCreateDialog>("Link Products to Categories");
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        products = await crud.GetAllCategoryLinks();
+    }
+
+    void OnRender(DataGridRenderEventArgs<Products> args)
+    {
+        if (args.FirstRender)
+        {
+            args.Grid.Groups.Add(new GroupDescriptor() { Property = "CategoryName", SortOrder = SortOrder.Ascending });
+            StateHasChanged();
+        }
+    }
+
+}

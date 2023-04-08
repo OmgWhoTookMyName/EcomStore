@@ -1,5 +1,5 @@
 ﻿@page "/productgrid"
-@using MyFirstEcommerceStore.Data;
+@using MyFirstEcommerceStore.Data
 @using MyFirstEcommerceStore.Data.Models
 @inject NotificationService NotificationService
 @inject DialogService DialogService
@@ -35,7 +35,7 @@
 </RadzenDataGrid>
 
 @code {
-    IEnumerable<Products> products;
+    IEnumerable<Products>? products;
     private ProductCRUD crud = new();
     RadzenDataGrid<Products> grid = new RadzenDataGrid<Products>();
 

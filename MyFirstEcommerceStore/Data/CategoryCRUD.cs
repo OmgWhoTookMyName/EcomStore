@@ -329,5 +329,55 @@ namespace MyFirstEcommerceStore.Data
             return Task.FromResult(true);
 
         }
+
+        public async Task<bool> CreateCategoryLinks(Products product, Category category)
+        {
+            var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
+
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+            
+            ProductCRUD crud = new ProductCRUD();
+
+            product = await crud.ProductCleanser(product);
+
+            string sql = $"INSERT INTO CategoryLinks(productid, categoryid) values('{product.ProductId}','{category.CategoryId}')";
+            cmd.CommandText = sql;
+
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+            return await Task.FromResult(true);
+
+        }
+
+        public async Task<bool> DeleteCategoryLinks(Products product, Category category)
+        {
+            var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
+
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+
+            ProductCRUD crud = new ProductCRUD();
+
+            product = await crud.ProductCleanser(product);
+
+            string sql = $"delete from categorylinks where productid = '{product.ProductId}' and categoryid = '{category.CategoryId}'";
+            cmd.CommandText = sql;
+
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+
+            return await Task.FromResult(true);
+
+        }
     }
 }

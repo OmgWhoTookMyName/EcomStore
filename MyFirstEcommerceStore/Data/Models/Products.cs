@@ -16,6 +16,10 @@
 
         public string? URL { get; set; }
 
+        public Category? Category { get; set; }
+
+        public string? CategoryName { get; set;}
+
 
     }
 }

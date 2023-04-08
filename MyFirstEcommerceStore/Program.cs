@@ -26,6 +26,8 @@ cmd.CommandText = "CREATE TABLE if not exists ProductImages(id SERIAL PRIMARY KE
 cmd.ExecuteNonQuery();
 cmd.CommandText = "CREATE TABLE if not exists Categories(id SERIAL PRIMARY KEY, CategoryId VARCHAR(50), Name VARCHAR(100), Description VARCHAR(1000), ParentCategoryId VARCHAR(50), Tier VARCHAR(5))";
 cmd.ExecuteNonQuery();
+cmd.CommandText = "CREATE TABLE if not exists CategoryLinks(id SERIAL PRIMARY KEY, CategoryId VARCHAR(50), ProductId VARCHAR(50))";
+cmd.ExecuteNonQuery();
 
 con.Close();
 
