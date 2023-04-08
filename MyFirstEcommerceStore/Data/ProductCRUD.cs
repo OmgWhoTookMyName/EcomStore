@@ -1,5 +1,6 @@
 ﻿using MyFirstEcommerceStore.Data.Models;
 using Npgsql;
+using System.Security.Cryptography;
 
 namespace MyFirstEcommerceStore.Data
 {
@@ -55,6 +56,74 @@ namespace MyFirstEcommerceStore.Data
             }
 
             return Task.FromResult(cleansedProduct);
+        }
+
+        public Task<Products> GetProductById(string productId)
+        {
+            //TODO: Expand this to get the brand, category and URLs as well
+            Products product = new Products();
+
+            var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
+
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+
+            string sql = $"select * from products where productid = '{productId}'";
+
+            using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+            {
+                NpgsqlDataReader rea = command.ExecuteReader();
+                string prodId, prodName, prodDesc;
+                double price;
+                while (rea.Read())
+                {
+                    int prodIdIndex = rea.GetOrdinal("productid");
+                    int prodNameIndex = rea.GetOrdinal("productname");
+                    int prodDescIndex = rea.GetOrdinal("productdescription");
+                    int priceIndex = rea.GetOrdinal("price");
+                    if (!rea.IsDBNull(prodIdIndex))
+                    {
+                        prodId = rea.GetString(prodIdIndex);
+                    }
+                    else
+                    {
+                        prodId = string.Empty;
+                    }
+                    if (!rea.IsDBNull(prodNameIndex))
+                    {
+                        prodName = rea.GetString(prodNameIndex);
+                    }
+                    else
+                    {
+                        prodName = string.Empty;
+                    }
+
+                    if (!rea.IsDBNull(prodDescIndex))
+                    {
+                        prodDesc = rea.GetString(prodDescIndex);
+                    }
+                    else
+                    {
+                        prodDesc = string.Empty;
+                    }
+
+                    if (!rea.IsDBNull(priceIndex))
+                    {
+                        price = rea.GetDouble(priceIndex);
+                    }
+                    else
+                    {
+                        price = 0;
+                    }
+
+                    product = new Products() { ProductId = prodId, ProductName = prodName, ProductDescription = prodDesc, Price = price };
+                }
+            }
+
+            return Task.FromResult(product);
         }
 
         public Task<List<Products>> GetAllProducts()
@@ -115,7 +184,73 @@ namespace MyFirstEcommerceStore.Data
             return Task.FromResult(true);
         }
 
+        public Task<List<Products>> GetAllCategoryLinks()
+        {
+            var cs = "Host=localhost;Username=ecomm_user;Password=masonjar;Database=ecomm_app";
 
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+
+            var products = new List<Products>();
+
+            string sql = "select * from categorylinks cl inner join products p on p.productid=cl.productid inner join categories c on c.categoryid=cl.categoryid";
+
+            using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+            {
+                NpgsqlDataReader rea = command.ExecuteReader();
+                string prodId, prodName, prodDesc,  catName;
+                while (rea.Read())
+                {
+                    int prodIdIndex = rea.GetOrdinal("productid");
+                    int prodNameIndex = rea.GetOrdinal("productname");
+                    int prodDescIndex = rea.GetOrdinal("productdescription");
+                    int catNameIndex = rea.GetOrdinal("name");
+                    if (!rea.IsDBNull(prodIdIndex))
+                    {
+                        prodId = rea.GetString(prodIdIndex);
+                    }
+                    else
+                    {
+                        prodId = string.Empty;
+                    }
+                    if (!rea.IsDBNull(prodNameIndex))
+                    {
+                        prodName = rea.GetString(prodNameIndex);
+                    }
+                    else
+                    {
+                        prodName = string.Empty;
+                    }
+
+                    if (!rea.IsDBNull(prodDescIndex))
+                    {
+                        prodDesc = rea.GetString(prodDescIndex);
+                    }
+                    else
+                    {
+                        prodDesc = string.Empty;
+                    }
+
+                    if (!rea.IsDBNull(catNameIndex))
+                    {
+                        catName = rea.GetString(catNameIndex);
+                    }
+                    else
+                    {
+                        catName = string.Empty;
+                    }
+
+                    products.Add(new Products() { ProductId = prodId, ProductName = prodName, ProductDescription = prodDesc, CategoryName = catName  });
+                }
+
+
+            }
+            con.Close();
+            return Task.FromResult(products);
+        }
         #endregion
         #region Brands
         public Task<List<Brand>> GetAllBrands()
